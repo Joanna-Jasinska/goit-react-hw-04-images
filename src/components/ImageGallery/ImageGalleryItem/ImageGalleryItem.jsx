@@ -2,34 +2,22 @@ import { Component } from 'react';
 import { PropTypes } from 'prop-types';
 import css from './ImageGalleryItem.module.css';
 
-export class ImageGalleryItem extends Component {
-  static defaultProps = {
-    id: 'no id',
-    miniature: 'no miniature',
-    url: 'no url',
-    alt: 'no alt',
-  };
-
-  render() {
-    return (
-      <li
-        className={css.galleryItem}
-        id={this.props.id}
-        onClick={this.props.onClick}
-      >
-        <img
-          src={this.props.miniature}
-          className={css.galleryItemImage}
-          alt={this.props.alt}
-        />
-      </li>
-    );
-  }
-}
+export const ImageGalleryItem = ({
+  onClick,
+  id = 'no id',
+  miniature = 'no miniature',
+  alt = 'no alt',
+}) => {
+  return (
+    <li className={css.galleryItem} id={id} onClick={onClick}>
+      <img src={miniature} className={css.galleryItemImage} alt={alt} />
+    </li>
+  );
+};
 
 ImageGalleryItem.propTypes = {
   id: PropTypes.number,
-  url: PropTypes.string,
   miniature: PropTypes.string,
   alt: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
 };
