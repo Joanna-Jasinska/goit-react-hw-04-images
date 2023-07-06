@@ -49,18 +49,42 @@ export const App = () => {
 
   useEffect(() => {
     setLoadingMore(true);
+
+    const componentDidCatch = error => {
+      console.log(error);
+      setError(error);
+      setLoading(false);
+    };
+    const fetchGallery = async () => {
+      const response = await fetchData(query, page, componentDidCatch);
+      if (page === 1) {
+        setGallery(convertResponseIntoGallery(response));
+      } else {
+        setGallery(prev => [...prev, ...convertResponseIntoGallery(response)]);
+      }
+      setHits(Number(response.data.totalHits) || 0);
+      setLoadingMore(false);
+      setLoading(false);
+      return true;
+    };
     try {
       fetchGallery();
     } finally {
       if (page > 1) {
         window.scrollTo(0, scroll);
       }
-      console.log(
-        `page: (${page}) hits: [${hits}] gallery: [${gallery.length}] `
-      );
-      console.log(`ese effect loading more finished`);
     }
-  }, [page, query]);
+  }, [
+    page,
+    query,
+    scroll,
+    setGallery,
+    setError,
+    setHits,
+    setLoading,
+    setLoadingMore,
+  ]);
+
   const saveScrollPosition = () => {
     const y = Math.floor(
       document.documentElement.scrollTop || document.body.scrollTop
@@ -68,26 +92,6 @@ export const App = () => {
     setScroll(y);
   };
 
-  const componentDidCatch = error => {
-    console.log(error);
-    setError(error);
-    setLoading(false);
-  };
-  const fetchGallery = async () => {
-    const response = await fetchData(query, page, componentDidCatch);
-    if (page == 1) {
-      setGallery(convertResponseIntoGallery(response));
-    } else {
-      setGallery(prev => [...prev, ...convertResponseIntoGallery(response)]);
-    }
-    setHits(Number(response.data.totalHits) || 0);
-    setLoadingMore(false);
-    setLoading(false);
-    console.log(
-      `fetching gallery page: (${page}) hits: [${hits}] gallery: [${gallery.length}] `
-    );
-    return true;
-  };
   const newGallery = () => {
     setError('');
     setHits(0);
@@ -103,12 +107,10 @@ export const App = () => {
   return (
     <div className="App">
       {loading ? <Loader /> : ''}
-      <Searchbar
-        searchHandle={newGallery}
-      />
+      <Searchbar searchHandle={newGallery} />
       {modalIndex > -1 ? <Modal {...gallery[modalIndex]} /> : ''}
       {!loading && gallery.length > 0 ? (
-        <ImageGallery  />
+        <ImageGallery />
       ) : error ? (
         ''
       ) : (
